@@ -3,18 +3,17 @@ import React, { useState } from 'react';
 import MoviesList from './components/MoviesList';
 import './App.css';
 
-//Here we use Fetch API
+//Here we use Fetch API, it returns a promise, that is JS language feature
 function App() {
   const [movies, setMovies] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  function fetchMoviesHandler() {
-    fetch('https://swapi.dev/api/films/')
-      .then((response) => {
-        return response.json();
-      })
-      
+ async function fetchMoviesHandler() {
+  setIsLoading(true);
+  const responce = await fetch('https://swapi.dev/api/films/')
+  const data = await responce.json();
+  
 //Since in Backend i.e abouve link the names of few props are different so we need to transform names.
-      .then((data) => {
         const transformedMovies = data.results.map((movieData) => {
           return {
             id: movieData.episode_id,
@@ -24,7 +23,7 @@ function App() {
           };
         });
         setMovies(transformedMovies);
-      });
+        setIsLoading(false);
   }
 
   return (
@@ -33,7 +32,9 @@ function App() {
         <button onClick={fetchMoviesHandler}>Fetch Movies</button>
       </section>
       <section>
-        <MoviesList movies={movies} />
+        {!isLoading && movies.length > 0 && <MoviesList movies={movies} />}
+        {!isLoading && movies.length === 0 && <p>Found no movies.</p>}
+        {isLoading && <p>Loading...</p>}
       </section>
     </React.Fragment>
   );
